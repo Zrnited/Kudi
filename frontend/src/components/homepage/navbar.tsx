@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Navbar() {
   return (
     <header className="flex p-5">
@@ -9,12 +11,12 @@ export default function Navbar() {
           <h2 className="capitalize text-lg font-semibold">kudi</h2>
         </button>
         <div className="flex gap-x-3 lg:gap-x-5">
-          <button className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary capitalize cursor-pointer">
+          <Link to={'/auth'} className="rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary capitalize cursor-pointer">
             sign in
-          </button>
-          <button className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 capitalize cursor-pointer">
+          </Link>
+          <Link to={'/auth'} className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 capitalize cursor-pointer">
             get started
-          </button>
+          </Link>
         </div>
       </nav>
     </header>

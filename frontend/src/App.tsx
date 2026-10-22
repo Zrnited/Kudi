@@ -5,6 +5,7 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/dashboard-layout";
 import Dashboard from "./pages/Dashboard";
 import { Auth } from "./auth/auth";
+import AuthPage from "./pages/Auth";
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
     <Router>
       <Routes>
         <Route index element={<Home />} />
+        <Route path="/auth" element={<AuthPage />} />
         <Route path="*" element={<NotFound />} />
         {/* protected routes */}
         <Route element={<DashboardLayout />}>
