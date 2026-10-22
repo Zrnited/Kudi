@@ -1,4 +1,4 @@
-import Footer from "../components/footer";
+import Footer from "../components/homepage/footer";
 import Ledger from "../components/homepage/ledger";
 import Navbar from "../components/homepage/navbar";
 import Services from "../components/homepage/services";
