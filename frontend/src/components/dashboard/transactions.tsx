@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { expenses, income } from "../../constants";
 
 type Category =
   | "food"
@@ -57,20 +58,6 @@ const mockHistory: RecordHistory[] = [
 export default function Transactions() {
   const [action, setAction] = useState<"expense" | "income">("expense");
   const [form, setForm] = useState<RecordForm>(initialData);
-
-  const expenses = [
-    "food",
-    "housing",
-    "transport",
-    "utilities",
-    "shopping",
-    "entertainment",
-    "health",
-    "education",
-    "other",
-  ];
-
-  const income = ["salary", "freelance", "business", "gifts", "others"];
 
   const category: string[] = action === "expense" ? expenses : income;
 
@@ -177,7 +164,7 @@ export default function Transactions() {
           <h2 className="font-display text-lg font-semibold text-primary">
             History
           </h2>
-          <p className="text-sm text-muted-foreground">2 entries</p>
+          <p className="text-sm text-muted-foreground">{mockHistory.length} entries</p>
         </div>
         <ul className="divide-y divide-secondary divide-border space-y-5">
           {mockHistory.map((history, index) => {
