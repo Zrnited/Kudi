@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { expenses } from "../../constants";
+import type { Category } from "../../types/shared";
+import { X } from "lucide-react";
 
 type BudgetItem = {
-  title: string;
+  category: Category;
   amountBudgeted: number | string;
   status: "on-track" | "over";
   amountUsed: number;
@@ -14,8 +17,29 @@ interface Budget {
   fromDate: string;
   toDate: string;
   budget: BudgetItem[];
+  totalBudgeted: number;
+  totalSpent: number;
   createdAt: string;
 }
+
+interface CreateBudgetForm {
+  title: string;
+  startDate: string;
+  endDate: string;
+  budget: Partial<BudgetItem>[];
+}
+
+const initial: CreateBudgetForm = {
+  title: "",
+  startDate: "",
+  endDate: "",
+  budget: [
+    {
+      category: "food",
+      amountBudgeted: 0,
+    },
+  ],
+};
 
 const mockBudget: Budget = {
   title: "Budget for October",
@@ -23,7 +47,15 @@ const mockBudget: Budget = {
   toDate: "2026-10-31",
   budget: [
     {
-      title: "food",
+      category: "food",
+      amountBudgeted: 2000,
+      status: "on-track",
+      amountUsed: 3200,
+      amountRemaining: 16800,
+      percentageUsed: "16%",
+    },
+    {
+      category: "transport",
       amountBudgeted: 2000,
       status: "on-track",
       amountUsed: 3200,
@@ -31,10 +63,54 @@ const mockBudget: Budget = {
       percentageUsed: "16%",
     },
   ],
+  totalBudgeted: 120000,
+  totalSpent: 20000,
   createdAt: "22 Oct 2026",
 };
 
 export default function Budgets() {
+  const [newBudget, setNewBudget] = useState<CreateBudgetForm>(initial);
+
+  console.log("New Budget", newBudget);
+
+  const handleAddBudgetItem = () => {
+    setNewBudget((prev) => ({
+      ...prev,
+      budget: [
+        ...prev.budget,
+        {
+          category: "food",
+          amountBudgeted: 0,
+        },
+      ],
+    }));
+  };
+
+  const handleUpdateBudgetItem = (
+    index: number,
+    field: "category" | "amountBudgeted",
+    value: string,
+  ) => {
+    setNewBudget((prev) => {
+      const updatedBudget = [...prev.budget];
+      updatedBudget[index] = {
+        ...updatedBudget[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        budget: updatedBudget,
+      };
+    });
+  };
+
+  const handleRemoveBudgetItem = (index: number) => {
+    setNewBudget((prev) => ({
+      ...prev,
+      budget: prev.budget.filter((_, i) => i !== index),
+    }));
+  };
+
   return (
     <div className="space-y-7 mt-4">
       {/* create a budget form */}
@@ -61,8 +137,10 @@ export default function Budgets() {
             type="text"
             placeholder="Budget for October 2026"
             name="note"
-            // value={form.note}
-            // onChange={handleChange}
+            value={newBudget.title}
+            onChange={(e) => {
+              setNewBudget((prev) => ({ ...prev, title: e.target.value }));
+            }}
           />
         </div>
         {/* start date */}
@@ -75,8 +153,10 @@ export default function Budgets() {
             //   max={new Date().toISOString().split("T")[0]}
             placeholder="Select Start Date"
             name="date"
-            // value={form.date}
-            // onChange={handleChange}
+            value={newBudget.startDate}
+            onChange={(e) => {
+              setNewBudget((prev) => ({ ...prev, startDate: e.target.value }));
+            }}
           />
         </div>
         {/* end date */}
@@ -85,42 +165,86 @@ export default function Budgets() {
           <input
             className="h-9.5 rounded-lg border px-3 focus:outline-none border-secondary"
             type="date"
-            //   min={new Date().toISOString().split("T")[0]}
+            min={newBudget.startDate}
             //   max={new Date().toISOString().split("T")[0]}
-            placeholder="Select Start Date"
+            placeholder="Select End Date"
             name="date"
-            // value={form.date}
-            // onChange={handleChange}
+            value={newBudget.endDate}
+            onChange={(e) => {
+              setNewBudget((prev) => ({ ...prev, endDate: e.target.value }));
+            }}
           />
         </div>
-        {/* amount */}
-        <div className="flex flex-col gap-y-1.5 text-sm">
-          <label className="capitalize">amount *</label>
-          <input
-            className="h-9.5 rounded-lg border border-secondary px-3 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            type="number"
-            placeholder="0.00"
-            name="amount"
-            // value={form.amount}
-            // onChange={handleChange}
-          />
+
+        {/* budget items */}
+        <div className="flex flex-col gap-y-3 text-sm">
+          <div className="items-center justify-between w-full flex">
+            <label className="capitalize font-semibold">Budget items</label>
+            <span
+              onClick={handleAddBudgetItem}
+              className="rounded-full border border-border px-3 py-1.5 text-sm flex items-center gap-x-2 font-medium text-foreground transition-colors hover:bg-secondary capitalize cursor-pointer"
+            >
+              + Budget Item
+            </span>
+          </div>
+          {newBudget.budget.map((budget, index) => {
+            return (
+              <div key={index} className="grid items-end grid-cols-[1fr_1fr_auto] sm:grid-cols-2 gap-3">
+                {/* category */}
+                <div className="flex flex-col gap-y-1.5 text-sm">
+                  <label className="capitalize">category</label>
+                  <select
+                    onChange={(e) =>
+                      handleUpdateBudgetItem(index, "category", e.target.value)
+                    }
+                    name="category"
+                    value={budget.category}
+                    className="appearance-none border-secondary capitalize h-9.5 rounded-lg border px-3 focus:outline-none"
+                  >
+                    {expenses.map((utility, index) => {
+                      return (
+                        <option key={index} value={utility}>
+                          {utility}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+                {/* amount */}
+                <div className="flex flex-col gap-y-1.5 text-sm">
+                  <label className="capitalize">amount</label>
+                  <input
+                    className="h-9.5 rounded-lg border border-secondary px-3 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    type="number"
+                    placeholder="0.00"
+                    name="amountBudgeted"
+                    value={budget.amountBudgeted}
+                    onChange={(e) =>
+                      handleUpdateBudgetItem(
+                        index,
+                        "amountBudgeted",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </div>
+                {newBudget.budget.length > 1 && (
+                  <div
+                    onClick={() => handleRemoveBudgetItem(index)}
+                    className="border border-secondary h-9.5 w-9.5 rounded-lg text-sm flex items-center justify-center gap-x-2 font-medium text-foreground transition-colors hover:bg-red-600 hover:text-white capitalize cursor-pointer"
+                  >
+                    <X />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-        {/* category */}
-        <div className="flex flex-col gap-y-1.5 text-sm">
-          <label className="capitalize">category *</label>
-          <select className="appearance-none border-secondary capitalize h-9.5 rounded-lg border px-3 focus:outline-none">
-            {expenses.map((utility, index) => {
-              return (
-                <option key={index} value={utility}>
-                  {utility}
-                </option>
-              );
-            })}
-          </select>
-        </div>
+
         {/* submit btn */}
         <button
           // disabled={!form.amount || !form.category || !form.date}
+          type="submit"
           className="h-9.5 bg-primary text-white font-medium rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           Create budget
@@ -129,7 +253,7 @@ export default function Budgets() {
       {/* overview */}
       <div className="rounded-2xl border border-secondary bg-white p-5 md:p-6">
         <h2 className="font-display text-lg font-semibold text-primary">
-          Budgets · October 2026
+          Budgets
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Set a monthly limit for a category of your choice. You'll be flagged

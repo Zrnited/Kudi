@@ -1,6 +1,8 @@
 import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
   return (
     <header className="flex p-3.5 border-b bg-white">
       <nav className="flex items-center gap-x-5 justify-between w-full xl:px-20">
@@ -16,6 +18,7 @@ export default function Navbar() {
         <div className="flex gap-x-3 lg:gap-x-5">
           <button
             disabled={false}
+            onClick={() => navigate("/", { replace: true })}
             className="rounded-full border border-border px-4 py-2 text-sm flex items-center gap-x-2 font-medium text-foreground transition-colors hover:bg-secondary capitalize cursor-pointer"
           >
             <LogOut size={15} />

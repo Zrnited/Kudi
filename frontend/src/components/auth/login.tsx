@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface Props {
@@ -17,6 +18,7 @@ const initialState: Form = {
 
 export default function Login({ action }: Props) {
   const [form, setForm] = useState<Form>(initialState);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,8 +27,8 @@ export default function Login({ action }: Props) {
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(form);
     toast.success("Login successful");
+    navigate("/d", { replace: true });
   };
 
   return (
@@ -54,7 +56,10 @@ export default function Login({ action }: Props) {
             name="password"
           />
         </div>
-        <button disabled={!form.email || !form.password} className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed">
+        <button
+          disabled={!form.email || !form.password}
+          className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
           Sign in
         </button>
         <p className="text-center text-xs text-foreground">

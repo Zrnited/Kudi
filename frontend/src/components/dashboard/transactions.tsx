@@ -3,22 +3,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import { expenses, income } from "../../constants";
-
-type Category =
-  | "food"
-  | "transport"
-  | "housing"
-  | "utilities"
-  | "shopping"
-  | "entertainment"
-  | "health"
-  | "education"
-  | "other"
-  | "salary"
-  | "freelance"
-  | "business"
-  | "gifts"
-  | "others";
+import type { Category } from "../../types/shared";
 
 interface RecordForm {
   amount: number | string;

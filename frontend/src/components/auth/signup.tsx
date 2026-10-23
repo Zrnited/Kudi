@@ -67,7 +67,10 @@ export default function Signup({ action }: Props) {
             onChange={handleChange}
           />
         </div>
-        <button className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90">
+        <button
+          disabled={!form.fullName || !form.email || !form.password}
+          className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
           Sign up
         </button>
         <p className="text-center text-xs text-foreground">

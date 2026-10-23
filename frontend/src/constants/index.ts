@@ -7,7 +7,7 @@ const expenses = [
   "entertainment",
   "health",
   "education",
-  "other",
+  "others",
 ];
 
 const income = ["salary", "freelance", "business", "gifts", "others"];
