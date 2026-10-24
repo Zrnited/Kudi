@@ -1,0 +1,33 @@
+using Kudi.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace Kudi.Data;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>(e =>
+        {
+            e.Property(u => u.Name).HasMaxLength(100).IsRequired();
+            e.Property(u => u.Email).HasMaxLength(255).IsRequired();
+            e.HasIndex(u => u.Email).IsUnique(); //prevents duplication
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.Property(t => t.Title).HasMaxLength(200).IsRequired();
+            e.Property(t => t.Category).HasMaxLength(50).IsRequired();
+            e.Property(t => t.Amount).HasPrecision(18, 2);
+            e.Property(t => t.Note).HasMaxLength(1000);
+            e.Property(t => t.Type).HasConversion<string>().HasMaxLength(20);
+
+            e.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(t => new { t.UserId, t.Date });
+        });
+    }
+}
