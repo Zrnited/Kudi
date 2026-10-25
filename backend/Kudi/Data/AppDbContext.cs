@@ -7,6 +7,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<Budget> Budgets => Set<Budget>();
+    public DbSet<BudgetItem> BudgetItems => Set<BudgetItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +30,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne<User>().WithMany().HasForeignKey(t => t.UserId).OnDelete(DeleteBehavior.Cascade);
 
             e.HasIndex(t => new { t.UserId, t.Date });
+        });
+
+        modelBuilder.Entity<Budget>(e =>
+        {
+            e.Property(b => b.Title).HasMaxLength(200).IsRequired();
+            e.HasOne<User>().WithMany().HasForeignKey(b => b.UserId).OnDelete(DeleteBehavior.Cascade);
+
+            e.HasMany(b => b.Items).WithOne().HasForeignKey(i => i.BudgetId).OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(b => new { b.UserId, b.StartDate });
+        });
+
+        modelBuilder.Entity<BudgetItem>(e =>
+        {
+            e.Property(i => i.Category).HasMaxLength(50).IsRequired();
+            e.Property(i => i.AmountBudgeted).HasPrecision(18, 2);
+            e.HasIndex(i => new { i.BudgetId, i.Category }).IsUnique();
         });
     }
 }

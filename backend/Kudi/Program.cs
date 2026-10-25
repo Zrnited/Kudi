@@ -46,6 +46,7 @@ app.MapAuthEndpoints();
 app.MapUserEndpoints();
 app.MapCategoryEndpoints();
 app.MapTransactionEndpoints();
+app.MapBudgetEndpoints();
 
 var summaries = new[]
 {
