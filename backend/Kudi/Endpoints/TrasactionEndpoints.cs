@@ -84,7 +84,6 @@ public static class TransactionEndpoints
             return deleted == 0 ? Results.NotFound() : Results.NoContent();
         });
 
-
         return app;
     }
 }
