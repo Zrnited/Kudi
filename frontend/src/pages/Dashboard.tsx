@@ -1,12 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Transactions from "../components/dashboard/transactions";
 import Budgets from "../components/dashboard/budgets";
 import Summary from "../components/dashboard/summary";
+import { getCategories } from "../api/categories/getCategories";
+import type { ApiError } from "../lib/api";
+import { toast } from "sonner";
 
 type action = "transactions" | "summary" | "budgets";
 
 export default function Dashboard() {
   const [action, setAction] = useState<action>("transactions");
+  const [categories, setCategories] = useState<string[] | null>(null);
+  const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
+
+  const fetchCategories = async () => {
+    await getCategories()
+      .then((res) => setCategories(res))
+      .catch((e: ApiError) => toast.error(e.message))
+      .finally(() => setIsLoadingCategories(false));
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   return (
     <section className="mt-3 space-y-4">
       {/* navigator */}
@@ -32,7 +49,7 @@ export default function Dashboard() {
         </button>
       </div>
       {/* transactions */}
-      {action === "transactions" && <Transactions />}
+      {action === "transactions" && <Transactions categories={categories} isLoadingCategories={isLoadingCategories} />}
       {action === "budgets" && <Budgets />}
       {action === "summary" && <Summary />}
     </section>
