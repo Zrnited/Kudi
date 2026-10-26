@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import type { ApiError } from "../../lib/api";
+import { register } from "../../api/users";
+import { validatePassword } from "../../lib/validatePassword";
 
 interface Props {
   action: "signup" | "login";
+  setIsRequesting: React.Dispatch<React.SetStateAction<boolean>>;
+  setAction: React.Dispatch<React.SetStateAction<"signup" | "login">>;
 }
 
 interface Form {
@@ -17,8 +22,9 @@ const initialState: Form = {
   password: "",
 };
 
-export default function Signup({ action }: Props) {
+export default function Signup({ action, setIsRequesting, setAction }: Props) {
   const [form, setForm] = useState<Form>(initialState);
+  const [isLoading, setIsLoading] = useState<boolean>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,8 +34,35 @@ export default function Signup({ action }: Props) {
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(form);
-    toast.success("Login successful");
+
+    //password validation
+    const { valid, errors } = validatePassword(form.password);
+    if (!valid) {
+      toast.error(`Password needs: ${errors.join(", ").toLowerCase()}`);
+      return;
+    }
+
+    setIsLoading(true);
+    setIsRequesting(true);
+    register(form.fullName, form.email, form.password)
+      .then(() => {
+        toast.success("Registration successful");
+        setForm(initialState);
+        setAction("login");
+      })
+      .catch((e) => {
+        const err = e as ApiError;
+        toast.error(err.message);
+        // console.log(err.message, err.errors?.amount);
+      })
+      .finally(() => (setIsLoading(false), setIsRequesting(false)));
   };
+
+  useEffect(() => {
+    if (action !== "signup") {
+      setForm(initialState);
+    }
+  }, [action]);
 
   return (
     <section className={`mt-5 ${action === "signup" ? "" : "hidden"}`}>
@@ -68,10 +101,12 @@ export default function Signup({ action }: Props) {
           />
         </div>
         <button
-          disabled={!form.fullName || !form.email || !form.password}
+          disabled={
+            !form.fullName || !form.email || !form.password || isLoading
+          }
           className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Sign up
+          {isLoading ? "Registering..." : "Sign up"}
         </button>
         <p className="text-center text-xs text-foreground">
           Your account and ledger are secure by our servers

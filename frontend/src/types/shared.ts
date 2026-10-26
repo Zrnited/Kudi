@@ -12,3 +12,9 @@ export type Category =
   | "business"
   | "gifts"
   | "others";
+
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+};

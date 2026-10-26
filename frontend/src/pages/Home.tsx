@@ -2,8 +2,10 @@ import Footer from "../components/homepage/footer";
 import Ledger from "../components/homepage/ledger";
 import Navbar from "../components/homepage/navbar";
 import Services from "../components/homepage/services";
+import { useAppContext } from "../context";
 
 export default function Home() {
+  const { user } = useAppContext();
   return (
     <main>
       <Navbar />
@@ -30,7 +32,7 @@ export default function Home() {
             </a>
             <a
               className="inline-flex items-center rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-              href="/d"
+              href={user ? "/d" : "/auth"}
             >
               Go to my ledger
             </a>
@@ -40,7 +42,7 @@ export default function Home() {
         <Ledger />
       </section>
       {/* services */}
-       <Services />
+      <Services />
       {/* footer */}
       <Footer />
     </main>

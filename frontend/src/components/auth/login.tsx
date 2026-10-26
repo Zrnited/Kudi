@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { login } from "../../api/auth";
+import type { ApiError } from "../../lib/api";
+import { useAppContext } from "../../context";
 
 interface Props {
   action: "signup" | "login";
+  setIsRequesting: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface Form {
@@ -16,9 +20,11 @@ const initialState: Form = {
   password: "",
 };
 
-export default function Login({ action }: Props) {
-  const [form, setForm] = useState<Form>(initialState);
+export default function Login({ action, setIsRequesting }: Props) {
   const navigate = useNavigate();
+  const { setUser } = useAppContext();
+  const [form, setForm] = useState<Form>(initialState);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,9 +33,27 @@ export default function Login({ action }: Props) {
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("Login successful");
-    navigate("/d", { replace: true });
+    setIsLoading(true);
+    setIsRequesting(true);
+    login(form.email, form.password)
+      .then((res) => {
+        setUser(res);
+        toast.success("Login successful");
+        navigate("/d", { replace: true });
+      })
+      .catch((e) => {
+        const err = e as ApiError;
+        toast.error(err.message);
+        // console.log(err.message, err.errors?.amount);
+      })
+      .finally(() => (setIsLoading(false), setIsRequesting(false)));
   };
+
+  useEffect(() => {
+    if (action !== "login") {
+      setForm(initialState);
+    }
+  }, [action]);
 
   return (
     <section className={`mt-5 ${action === "login" ? "" : "hidden"}`}>
@@ -57,10 +81,10 @@ export default function Login({ action }: Props) {
           />
         </div>
         <button
-          disabled={!form.email || !form.password}
+          disabled={!form.email || !form.password || isLoading}
           className="h-9.5 bg-primary text-white font-semibold rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Sign in
+          {isLoading ? "Signing in..." : "Sign in"}
         </button>
         <p className="text-center text-xs text-foreground">
           Your account and ledger are secure by our servers

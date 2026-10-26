@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "lF0iAdY9nlo=",
+  "dgSpecHash": "7irV6hNS/LQ=",
   "success": true,
   "projectFilePath": "C:\\Users\\ZrNited\\git-repos\\Kudi\\backend\\Kudi\\Kudi.csproj",
   "expectedPackageFiles": [
@@ -28,6 +28,7 @@
     "C:\\Users\\ZrNited\\.nuget\\packages\\npgsql\\10.0.3\\npgsql.10.0.3.nupkg.sha512",
     "C:\\Users\\ZrNited\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\10.0.3\\npgsql.entityframeworkcore.postgresql.10.0.3.nupkg.sha512",
     "C:\\Users\\ZrNited\\.nuget\\packages\\superpower\\3.0.0\\superpower.3.0.0.nupkg.sha512",
+    "C:\\Users\\ZrNited\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\10.3.1\\swashbuckle.aspnetcore.swaggerui.10.3.1.nupkg.sha512",
     "C:\\Users\\ZrNited\\.nuget\\packages\\system.codedom\\6.0.0\\system.codedom.6.0.0.nupkg.sha512",
     "C:\\Users\\ZrNited\\.nuget\\packages\\system.composition\\9.0.0\\system.composition.9.0.0.nupkg.sha512",
     "C:\\Users\\ZrNited\\.nuget\\packages\\system.composition.attributedmodel\\9.0.0\\system.composition.attributedmodel.9.0.0.nupkg.sha512",

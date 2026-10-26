@@ -1,5 +1,6 @@
 using DotNetEnv;
 using Kudi.Data;
+using Kudi.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -18,7 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>opt.UseNpgsql(builder.Configur
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
-    p.WithOrigins("https://localhost:5050").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    p.WithOrigins("http://localhost:5050").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
 }));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
@@ -37,12 +38,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)));
 builder.Services.AddAuthorization();
 
+builder.Services.AddScoped<IBudgetService, BudgetService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Kudi API"));
 }
 
 app.UseCors();

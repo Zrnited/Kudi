@@ -577,6 +577,22 @@
           }
         }
       },
+      "Swashbuckle.AspNetCore.SwaggerUI/10.3.1": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "System.CodeDom/6.0.0": {
         "type": "package",
         "compile": {
@@ -2100,6 +2116,27 @@
         "superpower.nuspec"
       ]
     },
+    "Swashbuckle.AspNetCore.SwaggerUI/10.3.1": {
+      "sha512": "kXuMIVJBDD6qMwG78VUrKy4x5Ke98HU0Q023Sf2iSBO/x45c5BuByYPAExIs9UeVsjdGGgvLWU5jK8l6MO2Z0Q==",
+      "type": "package",
+      "path": "swashbuckle.aspnetcore.swaggerui/10.3.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.dll",
+        "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.pdb",
+        "lib/net10.0/Swashbuckle.AspNetCore.SwaggerUI.xml",
+        "lib/net8.0/Swashbuckle.AspNetCore.SwaggerUI.dll",
+        "lib/net8.0/Swashbuckle.AspNetCore.SwaggerUI.pdb",
+        "lib/net8.0/Swashbuckle.AspNetCore.SwaggerUI.xml",
+        "lib/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll",
+        "lib/net9.0/Swashbuckle.AspNetCore.SwaggerUI.pdb",
+        "lib/net9.0/Swashbuckle.AspNetCore.SwaggerUI.xml",
+        "package-readme.md",
+        "swashbuckle.aspnetcore.swaggerui.10.3.1.nupkg.sha512",
+        "swashbuckle.aspnetcore.swaggerui.nuspec"
+      ]
+    },
     "System.CodeDom/6.0.0": {
       "sha512": "CPc6tWO1LAer3IzfZufDBRL+UZQcj5uS207NHALQzP84Vp/z6wF0Aa0YZImOQY8iStY0A2zI/e3ihKNPfUm8XA==",
       "type": "package",
@@ -2293,7 +2330,8 @@
       "DotNetEnv >= 3.2.0",
       "Microsoft.AspNetCore.OpenApi >= 10.0.13",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.13",
-      "Npgsql.EntityFrameworkCore.PostgreSQL >= 10.0.3"
+      "Npgsql.EntityFrameworkCore.PostgreSQL >= 10.0.3",
+      "Swashbuckle.AspNetCore.SwaggerUI >= 10.3.1"
     ]
   },
   "packageFolders": {
@@ -2362,6 +2400,10 @@
           "Npgsql.EntityFrameworkCore.PostgreSQL": {
             "target": "Package",
             "version": "[10.0.3, )"
+          },
+          "Swashbuckle.AspNetCore.SwaggerUI": {
+            "target": "Package",
+            "version": "[10.3.1, )"
           }
         },
         "imports": [
