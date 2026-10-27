@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Kudi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e8d0e87374bb9e2f027b75bfc9cdabea263fe294")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a74a5de11e90d4b3b36ccf886d335877cd0838f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Kudi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Kudi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -5,13 +5,15 @@ import Summary from "../components/dashboard/summary";
 import { getCategories } from "../api/categories/getCategories";
 import type { ApiError } from "../lib/api";
 import { toast } from "sonner";
+import type { TransactionResponse } from "../api/transactions";
 
-type action = "transactions" | "summary" | "budgets";
+export type action = "transactions" | "summary" | "budgets";
 
 export default function Dashboard() {
   const [action, setAction] = useState<action>("transactions");
   const [categories, setCategories] = useState<string[] | null>(null);
   const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
+  const [allTr, setAllTr] = useState<TransactionResponse[]>([]);
 
   const fetchCategories = async () => {
     await getCategories()
@@ -49,9 +51,15 @@ export default function Dashboard() {
         </button>
       </div>
       {/* transactions */}
-      {action === "transactions" && <Transactions categories={categories} isLoadingCategories={isLoadingCategories} />}
-      {action === "budgets" && <Budgets />}
-      {action === "summary" && <Summary />}
+      {action === "transactions" && (
+        <Transactions
+          categories={categories}
+          isLoadingCategories={isLoadingCategories}
+          setAllTr={setAllTr}
+        />
+      )}
+      {action === "budgets" && <Budgets action={action} />}
+      {action === "summary" && <Summary action={action} allTr={allTr} />}
     </section>
   );
 }

@@ -2,7 +2,7 @@ import { TRANSACTION_BASE } from ".";
 import { api } from "../../lib/api";
 import type { Category } from "../../types/shared";
 
-interface TransactionResponse {
+export interface TransactionResponse {
   amount: number;
   category: Category;
   date: string;

@@ -1,32 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { expenses } from "../../constants";
 import type { Category } from "../../types/shared";
 import { X } from "lucide-react";
+import { toast } from "sonner";
+import { addBudget, deleteBudget } from "../../api/budgets";
+import type { ApiError } from "../../lib/api";
+import type { action } from "../../pages/Dashboard";
+import { getBudgets, type Budget } from "../../api/budgets/getBudgets";
+import DeleteBudgetConfirmation from "./delete-budget";
 
-type BudgetItem = {
-  category: Category;
-  amountBudgeted: number | string;
-  status: "on-track" | "over";
-  amountUsed: number;
-  amountRemaining: number;
-  percentageUsed: string;
-};
-
-interface Budget {
-  title: string;
-  fromDate: string;
-  toDate: string;
-  budget: BudgetItem[];
-  totalBudgeted: number;
-  totalSpent: number;
-  createdAt: string;
+interface Props {
+  action: action;
 }
 
 interface CreateBudgetForm {
   title: string;
   startDate: string;
   endDate: string;
-  budget: Partial<BudgetItem>[];
+  budget: {
+    category: Category;
+    amountBudgeted: number;
+  }[];
 }
 
 const initial: CreateBudgetForm = {
@@ -41,37 +35,17 @@ const initial: CreateBudgetForm = {
   ],
 };
 
-const mockBudget: Budget = {
-  title: "Budget for October",
-  fromDate: "2026-10-01",
-  toDate: "2026-10-31",
-  budget: [
-    {
-      category: "food",
-      amountBudgeted: 2000,
-      status: "on-track",
-      amountUsed: 3200,
-      amountRemaining: 16800,
-      percentageUsed: "16%",
-    },
-    {
-      category: "transport",
-      amountBudgeted: 2000,
-      status: "on-track",
-      amountUsed: 3200,
-      amountRemaining: 16800,
-      percentageUsed: "16%",
-    },
-  ],
-  totalBudgeted: 120000,
-  totalSpent: 20000,
-  createdAt: "22 Oct 2026",
-};
-
-export default function Budgets() {
+export default function Budgets({ action }: Props) {
   const [newBudget, setNewBudget] = useState<CreateBudgetForm>(initial);
+  const [isCreatingBudget, setIsCreatingBudget] = useState<boolean>(false);
+  const [myBudgets, setMyBudgets] = useState<Budget[]>([]);
+  const [isFetchingBudgets, setIsFetchingBudgets] = useState<boolean>(false);
+  const [fetchBgErr, setFetchBgErr] = useState<boolean>(false);
+  const [showDelMod, setShowDelMod] = useState<boolean>(false);
+  const [selId, setSelId] = useState<number>();
+  const [isDelBudg, setIsDelBudg] = useState<boolean>(false);
 
-  console.log("New Budget", newBudget);
+  const recentBudget: Budget = myBudgets[myBudgets.length - 1];
 
   const handleAddBudgetItem = () => {
     setNewBudget((prev) => ({
@@ -95,7 +69,7 @@ export default function Budgets() {
       const updatedBudget = [...prev.budget];
       updatedBudget[index] = {
         ...updatedBudget[index],
-        [field]: value,
+        [field]: field === "amountBudgeted" ? Number(value) : value,
       };
       return {
         ...prev,
@@ -111,11 +85,59 @@ export default function Budgets() {
     }));
   };
 
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { title, budget } = newBudget;
+    if (!title.trim()) return toast.error("Budget title is necessary");
+    if (budget.length <= 0)
+      return toast.error("Add at least 1 (one) budget item");
+    //call endpoint
+    setIsCreatingBudget(true);
+    await addBudget(newBudget)
+      .then(() => {
+        toast.success("Budget created successfully");
+        setNewBudget(initial);
+        fetchBudgets();
+      })
+      .catch((e: ApiError) => toast.error(e.message))
+      .finally(() => setIsCreatingBudget(false));
+  };
+
+  const fetchBudgets = async () => {
+    await getBudgets()
+      .then((res) => (setMyBudgets(res), console.log("Budgets: ", res)))
+      .catch(() => setFetchBgErr(true))
+      .finally(() => setIsFetchingBudgets(false));
+  };
+
+  const closeModal = () => {
+    setSelId(undefined);
+    setShowDelMod(false);
+  };
+
+  const deleteMyBudget = async () => {
+    if (!selId) return;
+    setIsDelBudg(true);
+    await deleteBudget(selId)
+      .then(() => {
+        toast.success("Budget deleted successfully");
+        closeModal();
+        fetchBudgets();
+      })
+      .catch((e: ApiError) => toast.error(e.message))
+      .finally(() => setIsDelBudg(false));
+  };
+
+  useEffect(() => {
+    if (action !== "budgets") return;
+    fetchBudgets();
+  }, [action]);
+
   return (
     <div className="space-y-7 mt-4">
       {/* create a budget form */}
       <form
-        // onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
         className="rounded-2xl border border-secondary bg-white p-5 md:p-6 space-y-5"
       >
         {/* heading */}
@@ -131,7 +153,7 @@ export default function Budgets() {
         </div>
         {/* title */}
         <div className="flex flex-col gap-y-1.5 text-sm">
-          <label>budget title *</label>
+          <label>Budget title *</label>
           <input
             className="h-9.5 rounded-lg border px-3 focus:outline-none border-secondary"
             type="text"
@@ -189,7 +211,10 @@ export default function Budgets() {
           </div>
           {newBudget.budget.map((budget, index) => {
             return (
-              <div key={index} className="grid items-end grid-cols-[1fr_1fr_auto] sm:grid-cols-2 gap-3">
+              <div
+                key={index}
+                className="grid items-end grid-cols-[1fr_1fr_auto] sm:grid-cols-2 gap-3"
+              >
                 {/* category */}
                 <div className="flex flex-col gap-y-1.5 text-sm">
                   <label className="capitalize">category</label>
@@ -243,63 +268,130 @@ export default function Budgets() {
 
         {/* submit btn */}
         <button
-          // disabled={!form.amount || !form.category || !form.date}
+          disabled={
+            !newBudget.title.trim() ||
+            !newBudget.startDate ||
+            !newBudget.endDate ||
+            isCreatingBudget
+          }
           type="submit"
           className="h-9.5 bg-primary text-white font-medium rounded-lg w-full cursor-pointer mt-1 hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Create budget
+          {isCreatingBudget ? "Creating budget..." : "Create budget"}
         </button>
       </form>
-      {/* overview */}
-      <div className="rounded-2xl border border-secondary bg-white p-5 md:p-6">
-        <h2 className="font-display text-lg font-semibold text-primary">
-          Budgets
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Set a monthly limit for a category of your choice. You'll be flagged
-          the moment spending crosses the line.
-        </p>
-        <div className="mt-4 flex items-baseline justify-between rounded-xl bg-secondary px-4 py-3">
-          <p className="text-sm font-medium text-primary">
-            Total budgeted: ₦20,000.00
-          </p>
-          <p className="text-sm font-semibold tabular-nums text-green-700">
-            ₦3,200.00 spent
-          </p>
-        </div>
-      </div>
-      {/* budgets */}
-      <div className="rounded-2xl border border-secondary bg-white">
-        <h2 className="font-display text-lg font-semibold text-primary pt-5 px-5">
-          Budget for October
-        </h2>
-        <ul className="divide-y divide-secondary">
-          <li className="px-5 py-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm font-semibold">Food</p>
-              <div className="flex items-center gap-2">
-                <p className="font-medium">₦{(2000).toLocaleString()}.00</p>
-              </div>
+      {isFetchingBudgets ? (
+        <section className="h-20 flex items-center justify-center">
+          <h1 className="text-center">Getting your budgets...</h1>
+        </section>
+      ) : fetchBgErr ? (
+        <section className="h-20 flex items-center justify-center">
+          <h1 className="text-center">Failed to fetch budget.</h1>
+        </section>
+      ) : myBudgets.length === 0 ? (
+        <section className="rounded-2xl border border-secondary bg-white p-5 md:p-6">
+          <h1 className="text-center">
+            Create your first budget using the form above.
+          </h1>
+        </section>
+      ) : (
+        <section className="space-y-5">
+          {/* overview */}
+          <div className="rounded-2xl border border-secondary bg-white p-5 md:p-6">
+            <h2 className="font-display text-lg font-semibold text-primary">
+              Budgets
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Set a monthly limit for a category of your choice. You'll be
+              flagged the moment spending crosses the line.
+            </p>
+            <div className="mt-4 flex items-baseline justify-between rounded-xl bg-secondary px-4 py-3">
+              <p className="text-sm font-medium text-primary">
+                Total budgeted: ₦
+                {recentBudget?.totalBudgeted?.toLocaleString() ?? 0}.00
+              </p>
+              <p className="text-sm font-semibold tabular-nums text-green-700">
+                ₦{recentBudget?.totalSpent ?? 0}.00 spent
+              </p>
             </div>
-            <div className="mt-3 space-y-1.5">
-              <div className="relative h-2 w-full overflow-hidden rounded-full bg-primary/20">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: "48%" }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground tabular-nums">
-                  ₦3,200.00 of ₦20,000.00 (16%)
-                </span>
-                <span className="rounded-full bg-green-700/10 px-2 py-0.5 font-semibold text-green-700">
-                  On track
-                </span>
-              </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex w-full justify-between items-center">
+              <h2 className="font-display text-lg font-semibold min-w-35">
+                Recent Budget
+              </h2>
+              <button
+                title="Delete Budget"
+                onClick={() => {
+                  setSelId(recentBudget.id);
+                  setShowDelMod(true);
+                }}
+                className="rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600/80 capitalize cursor-pointer"
+              >
+                delete budget
+              </button>
             </div>
-          </li>
-        </ul>
-      </div>
+            <hr className="w-full border-none h-px bg-secondary" />
+          </div>
+          {/* budgets */}
+          <div className="rounded-2xl border border-secondary bg-white">
+            <h2 className="font-display text-lg font-semibold text-primary pt-5 px-5">
+              {recentBudget?.title ?? ""}
+            </h2>
+            <ul className="divide-y divide-secondary">
+              {recentBudget.budget.map((item, index) => {
+                return (
+                  <li key={index} className="px-5 py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm font-semibold capitalize">
+                        {item.category}
+                      </p>
+                      <div className="flex items-center gap-2 text-sm sm:text-base">
+                        <p className="font-semibold">
+                          ₦{item.amountBudgeted.toLocaleString()}.00{" "}
+                          {item.status === "over" && (
+                            <span className="text-red-600">
+                              (-₦
+                              {item.amountRemaining.toLocaleString().slice(1)}
+                              .00)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-1.5">
+                      <div className="relative h-2 w-full overflow-hidden rounded-full bg-primary/20">
+                        <div
+                          className={`h-full rounded-full bg-primary transition-all ${item.status === "over" && "bg-red-600"}`}
+                          style={{ width: `${item.percentageUsed}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground tabular-nums">
+                          ₦{item.amountUsed}.00 of ₦{item.amountBudgeted}.00 (
+                          {item.percentageUsed}%)
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 font-semibold ${item.status === "on-track" ? "bg-green-700/10 text-green-700" : "bg-red-600/10 text-red-600"}`}
+                        >
+                          {item.status === "on-track" ? "On track" : "Over"}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+      {showDelMod && (
+        <DeleteBudgetConfirmation
+          closeModal={closeModal}
+          isDelBudg={isDelBudg}
+          deleteMyBudget={deleteMyBudget}
+        />
+      )}
     </div>
   );
 }

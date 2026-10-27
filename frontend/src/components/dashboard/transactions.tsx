@@ -8,12 +8,15 @@ import {
   addTransaction,
   deleteTransaction,
   getTransactions,
+  type TransactionResponse,
 } from "../../api/transactions";
 import type { ApiError } from "../../lib/api";
+import StatCard from "./stat-card";
 
 interface Props {
   categories: string[] | null;
   isLoadingCategories: boolean;
+  setAllTr: React.Dispatch<React.SetStateAction<TransactionResponse[]>>;
 }
 
 interface RecordForm {
@@ -24,9 +27,14 @@ interface RecordForm {
   title: string;
 }
 
-interface RecordHistory extends RecordForm {
+interface RecordHistory {
   type: "expense" | "income";
   id: number;
+  amount: number;
+  category: Category;
+  date: string;
+  note: string;
+  title: string;
 }
 
 const initialData: RecordForm = {
@@ -40,17 +48,25 @@ const initialData: RecordForm = {
 export default function Transactions({
   categories,
   isLoadingCategories,
+  setAllTr,
 }: Props) {
   const [action, setAction] = useState<"expense" | "income">("expense");
   const [form, setForm] = useState<RecordForm>(initialData);
-  const [myTransactions, setMyTransactions] = useState<RecordHistory[]>();
+  const [myTransactions, setMyTransactions] = useState<RecordHistory[]>([]);
   const [isFetchingTransactions, setIsFetchingTransactions] =
     useState<boolean>();
   const [fetchTrErr, setFetchTrErr] = useState<boolean>(false);
   const [isDelTrans, setIsDelTrans] = useState<boolean>(false);
   const [isCreatingTransaction, setIsCreatingTransaction] = useState<boolean>();
 
-  // const category: string[] = action === "expense" ? expenses : income;
+  const total_expenses: number = myTransactions
+    .filter((tr) => tr.type === "expense")
+    .reduce((sum, e) => sum + e.amount, 0);
+  const total_income: number = myTransactions
+    .filter((tr) => tr.type === "income")
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const total_kept: number = total_income - total_expenses;
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -59,7 +75,9 @@ export default function Transactions({
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -94,7 +112,7 @@ export default function Transactions({
 
   const fetchMyTransactions = async () => {
     await getTransactions()
-      .then((res) => setMyTransactions(res))
+      .then((res) => (setMyTransactions(res), setAllTr(res)))
       .catch(() => setFetchTrErr(true))
       .finally(() => setIsFetchingTransactions(false));
   };
@@ -117,6 +135,11 @@ export default function Transactions({
 
   return (
     <div className="space-y-7">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard title="total spent" amount={total_expenses ?? 0} />
+        <StatCard title="total income" amount={total_income ?? 0} />
+        <StatCard title="total kept" amount={total_kept ?? 0} />
+      </div>
       {/* income/expense form */}
       <form
         onSubmit={handleSubmit}
@@ -167,6 +190,9 @@ export default function Transactions({
           <label className="capitalize">category *</label>
           <select
             disabled={isLoadingCategories}
+            value={form.category}
+            name="category"
+            onChange={handleChange}
             className="appearance-none border-secondary capitalize h-9.5 rounded-lg border px-3 focus:outline-none"
           >
             {categories?.map((utility, index) => {
@@ -258,7 +284,7 @@ export default function Transactions({
                       {history.category}
                       <span className="font-normal text-muted-foreground">
                         {" "}
-                        · {history.note}
+                        · {history.title || history.note}
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground">

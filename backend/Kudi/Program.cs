@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using Kudi.Endpoints;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-if(File.Exists(".env")) Env.Load();
+if (File.Exists(".env")) Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<AppDbContext>(opt =>opt.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); //wire up data base
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("Default"))); //wire up data base
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
@@ -39,6 +39,7 @@ builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Ad
 builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<IBudgetService, BudgetService>();
+builder.Services.AddScoped<ISummaryService, SummaryService>();
 
 var app = builder.Build();
 
@@ -59,6 +60,7 @@ app.MapUserEndpoints();
 app.MapCategoryEndpoints();
 app.MapTransactionEndpoints();
 app.MapBudgetEndpoints();
+app.MapSummaryEndpoints();
 
 var summaries = new[]
 {
