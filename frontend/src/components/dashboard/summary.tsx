@@ -1,5 +1,4 @@
-import { ArrowUpRight, ChevronDown, DollarSign } from "lucide-react";
-import StatCard from "./stat-card";
+import { ChevronDown, DollarSign } from "lucide-react";
 import type { TransactionResponse } from "../../api/transactions";
 import { getSummary } from "../../api/summary";
 import { useEffect, useState } from "react";
@@ -13,7 +12,7 @@ interface Props {
 
 //10-2026
 
-export default function Summary({ allTr, action }: Props) {
+export default function Summary({ action }: Props) {
   const [mySummary, setMySummary] = useState<Summary>();
   const [fetchSmErr, setFetchSmErr] = useState<boolean>(false);
   const [isFetchingSumm, setIsFetchingSumm] = useState<boolean>(false);

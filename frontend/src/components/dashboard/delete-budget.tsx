@@ -1,5 +1,3 @@
-import { toast } from "sonner";
-
 interface Props {
   deleteMyBudget: () => Promise<void>;
   closeModal: () => void;
