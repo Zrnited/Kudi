@@ -1,4 +1,4 @@
-import { Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -38,7 +38,7 @@ interface RecordHistory {
 }
 
 const initialData: RecordForm = {
-  amount: 0,
+  amount: 0.0,
   category: "food",
   date: "",
   note: "",
@@ -138,7 +138,10 @@ export default function Transactions({
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard title="total spent" amount={total_expenses ?? 0} />
         <StatCard title="total income" amount={total_income ?? 0} />
-        <StatCard title="total kept" amount={total_kept ?? 0} />
+        <StatCard
+          title="total left"
+          amount={total_kept ? (total_kept < 0 ? 0 : total_kept) : 0}
+        />
       </div>
       {/* income/expense form */}
       <form
@@ -186,7 +189,7 @@ export default function Transactions({
           />
         </div>
         {/* category */}
-        <div className="flex flex-col gap-y-1.5 text-sm">
+        <div className="flex flex-col gap-y-1.5 text-sm relative">
           <label className="capitalize">category *</label>
           <select
             disabled={isLoadingCategories}
@@ -203,6 +206,7 @@ export default function Transactions({
               );
             })}
           </select>
+          <ChevronDown className="absolute bottom-1.5 right-2" color="gray" />
         </div>
         {/* date */}
         <div className="flex flex-col gap-y-1.5 text-sm">
