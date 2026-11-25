@@ -33,7 +33,6 @@ export default function Signup({ action, setIsRequesting, setAction }: Props) {
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(form);
 
     //password validation
     const { valid, errors } = validatePassword(form.password);

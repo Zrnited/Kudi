@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(builder.Configu
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
-    p.WithOrigins("http://localhost:5050", "https://kudi-cjbi.onrender.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    p.WithOrigins("http://localhost:5050", "https://kuditrac.netlify.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
 })); //resolve cors
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
