@@ -20,7 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(builder.Configu
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
 {
     p.WithOrigins("http://localhost:5050").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-}));
+})); //resolve cors
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
