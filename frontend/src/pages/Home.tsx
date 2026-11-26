@@ -20,8 +20,7 @@ export default function Home() {
           </h1>
           <p className="mt-5 max-w-md text-lg text-foreground">
             Track what you earn and spend, set a budget for each category, and
-            see how this month stacks up against the last - without your data
-            ever leaving your device.
+            see how this month stacks up against the last.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
